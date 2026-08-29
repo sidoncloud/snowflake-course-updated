@@ -1,0 +1,4 @@
+order_id,customer_name,country,order_ts,status,amount
+5001,Ava Patel,US,2026-07-01 09:00:00,NEW,120.00
+5002,Liam Chen,GB,2026-07-01 09:05:00,NEW,84.50
+5003,Mia Garcia,ES,2026-07-01 09:10:00,NEW,255.00

@@ -1,0 +1,12 @@
+{"order_id": 2000, "customer": {"name": "Ava Patel", "country": "US"}, "items": [{"sku": "SKU-100", "qty": 1}], "channel": "web", "amount": 50}
+{"order_id": 2001, "customer": {"name": "Liam Chen", "country": "GB"}, "items": [{"sku": "SKU-101", "qty": 2}], "channel": "mobile", "amount": 103}
+{"order_id": 2002, "customer": {"name": "Mia Garcia", "country": "ES"}, "items": [{"sku": "SKU-102", "qty": 3}], "channel": "store", "amount": 156}
+{"order_id": 2003, "customer": {"name": "Noah Kim", "country": "KR"}, "items": [{"sku": "SKU-103", "qty": 4}], "channel": "web", "amount": 209}
+{"order_id": 2004, "customer": {"name": "Sofia Rossi", "country": "IT"}, "items": [{"sku": "SKU-104", "qty": 1}], "channel": "mobile", "amount": 262}
+{"order_id": 2005, "customer": {"name": "Hana Suzuki", "country": "JP"}, "items": [{"sku": "SKU-105", "qty": 2}], "channel": "store", "amount": 315}
+{"order_id": 2006, "customer": {"name": "Lucas Muller", "country": "DE"}, "items": [{"sku": "SKU-106", "qty": 3}], "channel": "web", "amount": 368}
+{"order_id": 2007, "customer": {"name": "Emma Dubois", "country": "FR"}, "items": [{"sku": "SKU-107", "qty": 4}], "channel": "mobile", "amount": 71}
+{"order_id": 2008, "customer": {"name": "Zoe Silva", "country": "BR"}, "items": [{"sku": "SKU-108", "qty": 1}], "channel": "store", "amount": 124}
+{"order_id": 2009, "customer": {"name": "Kai Andersen", "country": "DK"}, "items": [{"sku": "SKU-109", "qty": 2}], "channel": "web", "amount": 177}
+{"order_id": 2010, "customer": {"name": "Ivy Nguyen", "country": "VN"}, "items": [{"sku": "SKU-110", "qty": 3}], "channel": "mobile", "amount": 230}
+{"order_id": 2011, "customer": {"name": "Omar Hassan", "country": "EG"}, "items": [{"sku": "SKU-111", "qty": 4}], "channel": "store", "amount": 283}

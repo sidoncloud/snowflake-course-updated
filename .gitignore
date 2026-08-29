@@ -1,0 +1,29 @@
+# videos (hosted on Udemy, not source)
+videos/
+*.mp4
+*.mov
+# slide decks (binary, not code)
+*.pptx
+# credentials — never commit
+connections.toml
+.env
+*.env
+# python/os junk
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.venv/
+venv/
+
+# narration scripts (private teaching notes, not student source)
+**/scripts/*.md
+_script_backups/
+NARRATION-STYLE.md
+
+# internal deck generators & tools (not student source)
+**/slides/
+_slidekit/
+_tools/
+
+CURRICULUM.md
