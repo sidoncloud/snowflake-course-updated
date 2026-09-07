@@ -81,6 +81,7 @@ reg.log_model(
     comment="XGBoost regressor, deeper and more estimators",
     metrics={"mean_absolute_error": mae_v2, "r2_score": r2_v2},
     sample_input_data=train_pd[FEATURES].head(100),
+    target_platforms=["WAREHOUSE"],  # log for warehouse inference so v2.run() works on a WH
 )
 
 # Promote by metric. Lower error wins, and we set the registry default to it, so

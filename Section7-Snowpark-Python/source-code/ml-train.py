@@ -74,6 +74,7 @@ reg.log_model(
     comment="XGBoost regressor predicting delivery delay in minutes",
     metrics={"mean_absolute_error": mae, "r2_score": r2},
     sample_input_data=train_pd[FEATURES].head(100),
+    target_platforms=["WAREHOUSE"],  # log for warehouse inference so v1.run() works on a WH
 )
 print(f"Registered {MODEL_NAME} version V1")
 
