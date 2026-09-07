@@ -22,6 +22,12 @@ from snowflake.snowpark.functions import col, date_part, when, iff, avg, coalesc
 # In a Snowflake Notebook the session already exists; we just grab it.
 session = get_active_session()
 
+# Point the notebook at the lab's warehouse, database and schema so the
+# unqualified table names below resolve regardless of how the notebook was opened.
+session.use_warehouse("SNOWPARK_ML_WH")
+session.use_database("DELIVERY_ML_LAB")
+session.use_schema("PUBLIC")
+
 # Read the two source tables and join them on ORDER_ID. Passing the column name
 # gives a natural join, keeping a single ORDER_ID column.
 orders = session.table("ORDERS")

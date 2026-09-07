@@ -21,6 +21,12 @@ from snowflake.ml.registry import Registry
 
 session = get_active_session()
 
+# Point the notebook at the lab's warehouse, database and schema so the
+# unqualified table names below resolve regardless of how the notebook was opened.
+session.use_warehouse("SNOWPARK_ML_WH")
+session.use_database("DELIVERY_ML_LAB")
+session.use_schema("PUBLIC")
+
 DATABASE = "DELIVERY_ML_LAB"
 SCHEMA = "PUBLIC"
 MODEL_NAME = "DELIVERY_DELAY_MODEL"
