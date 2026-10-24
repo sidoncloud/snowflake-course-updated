@@ -9,6 +9,36 @@
 -- key body into the CREATE USER statement below.
 -- =============================================================================
 
+-- -----------------------------------------------------------------------------
+-- STEP 0 (run in a terminal, not here): generate the key pair
+-- -----------------------------------------------------------------------------
+-- Snowflake does not create keys. You create them on your machine with openssl,
+-- then give Snowflake only the PUBLIC key. From this folder run:
+--
+--     bash generate-key-pair.sh
+--
+-- It runs these two openssl commands:
+--
+--     openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt
+--         -> rsa_key.p8, the PRIVATE key (2048-bit RSA, PKCS8 format, no passphrase).
+--            The connector logs in with this. Never commit it to Git.
+--
+--     openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+--         -> rsa_key.pub, the PUBLIC key, derived from the private key.
+--            This is the one Snowflake stores on the user.
+--
+-- Then it prints both keys as single lines with the BEGIN/END lines removed:
+--     RSA_PUBLIC_KEY        -> paste into the CREATE USER statement below
+--     snowflake.private.key -> paste into snowflake-sink-connector.json
+--
+-- Windows: run it from Git Bash, which ships with openssl. WSL works too.
+-- Mac and Linux already have bash and openssl.
+--
+-- To check the key afterwards, run this once the user exists:
+--     DESC USER KAFKA_CONNECTOR_USER;
+-- The RSA_PUBLIC_KEY_FP row shows a SHA256 fingerprint once the key is set.
+-- -----------------------------------------------------------------------------
+
 USE ROLE ACCOUNTADMIN;
 USE WAREHOUSE COURSE_WH;
 CREATE DATABASE IF NOT EXISTS KAFKA_LAB;
