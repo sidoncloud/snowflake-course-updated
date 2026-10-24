@@ -3,7 +3,22 @@
 # The Kafka connector authenticates with the PRIVATE key; Snowflake stores the
 # PUBLIC key on the user via RSA_PUBLIC_KEY. Run this once, in the folder where
 # you keep the lab files.
+#
+#   Mac / Linux : open a terminal in this folder and run  bash generate-key-pair.sh
+#   Windows     : Command Prompt and PowerShell can't run this. Use Git Bash
+#                 (comes with Git for Windows and includes openssl): right-click
+#                 this folder in File Explorer > "Open Git Bash here", then run
+#                 bash generate-key-pair.sh   (WSL works the same way.)
+#
+# Check openssl is there first with:  openssl version
+# Linux without openssl: sudo apt install openssl  (or sudo dnf install openssl)
 set -euo pipefail
+
+if ! command -v openssl >/dev/null 2>&1; then
+  echo "openssl not found. On Windows run this from Git Bash or WSL."
+  echo "On Linux install it with: sudo apt install openssl (or sudo dnf install openssl)"
+  exit 1
+fi
 
 # 1. Private key, PKCS8, unencrypted. This is the key the connector will use.
 openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt

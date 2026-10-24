@@ -1,0 +1,2 @@
+# Keep shell scripts with Linux line endings so they run in Git Bash and WSL on Windows
+*.sh text eol=lf

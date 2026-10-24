@@ -4,7 +4,22 @@
 # Connect REST API is live at http://localhost:8083 (give it a minute to install
 # the connector plugin). snowflake-sink-connector.json must sit next to this file
 # with your account, user, and private key filled in.
+#
+#   Mac / Linux : bash stream-events.sh
+#   Windows     : run it from Git Bash or WSL, with Docker Desktop running.
 set -euo pipefail
+
+# Pretty-print JSON. Windows usually has "python" rather than "python3", and if
+# neither is installed the raw JSON is printed instead.
+pretty() {
+  if command -v python3 >/dev/null 2>&1 && python3 -c "" >/dev/null 2>&1; then
+    python3 -m json.tool
+  elif command -v python >/dev/null 2>&1 && python -c "" >/dev/null 2>&1; then
+    python -m json.tool
+  else
+    cat; echo
+  fi
+}
 
 # 1. Create the topic the connector listens to.
 docker exec s9-kafka kafka-topics --bootstrap-server kafka:29092 \
@@ -13,11 +28,11 @@ docker exec s9-kafka kafka-topics --bootstrap-server kafka:29092 \
 # 2. Register the connector against the Kafka Connect REST API.
 curl -s -X POST -H "Content-Type: application/json" \
   --data @snowflake-sink-connector.json \
-  http://localhost:8083/connectors | python3 -m json.tool
+  http://localhost:8083/connectors | pretty
 
 # 3. Confirm the connector and its task are RUNNING before producing.
 sleep 10
-curl -s http://localhost:8083/connectors/snowflake-sink/status | python3 -m json.tool
+curl -s http://localhost:8083/connectors/snowflake-sink/status | pretty
 
 # 4. Produce five JSON events into the topic.
 printf '%s\n' \
