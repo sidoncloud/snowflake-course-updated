@@ -32,5 +32,5 @@ SELECT
 FROM PRODUCT_EVENTS
 ORDER BY kafka_offset;
 
--- 5. Produce more events from the shell and re-run step 1. The count climbs
---    within seconds, with no COPY INTO and no command from you.
+-- 5. In the terminal run  bash send-one-event.sh  and re-run step 1.
+--    The count goes from 5 to 6 within seconds, with no load command from you.

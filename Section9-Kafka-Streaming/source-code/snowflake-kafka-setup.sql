@@ -34,9 +34,7 @@
 -- Windows: run it from Git Bash, which ships with openssl. WSL works too.
 -- Mac and Linux already have bash and openssl.
 --
--- To check the key afterwards, run this once the user exists:
---     DESC USER KAFKA_CONNECTOR_USER;
--- The RSA_PUBLIC_KEY_FP row shows a SHA256 fingerprint once the key is set.
+-- Step 6 at the bottom of this file checks that the key is on the user.
 -- -----------------------------------------------------------------------------
 
 USE ROLE ACCOUNTADMIN;
@@ -79,6 +77,10 @@ GRANT SELECT, INSERT ON TABLE PRODUCT_EVENTS TO ROLE KAFKA_CONNECTOR_ROLE;
 -- 5. Confirm the objects exist.
 SHOW USERS LIKE 'KAFKA_CONNECTOR_USER';
 DESC TABLE PRODUCT_EVENTS;
+
+-- 6. Confirm the public key is on the user. The RSA_PUBLIC_KEY_FP row shows a
+--    SHA256 fingerprint. If it is empty, re-paste the key in step 2 and re-run it.
+DESC USER KAFKA_CONNECTOR_USER;
 
 -- Cleanup (optional, run this when you are done to remove what the lab created):
 -- DROP TABLE IF EXISTS KAFKA_LAB.KAFKA.PRODUCT_EVENTS;
