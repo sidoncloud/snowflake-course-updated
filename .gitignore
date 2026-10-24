@@ -33,3 +33,6 @@ _tools/
 # private keys from generate-key-pair.sh, never commit
 *.p8
 rsa_key*
+
+# your filled-in connector config with the private key, never commit
+**/snowflake-sink-connector.local.json
