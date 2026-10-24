@@ -29,3 +29,7 @@ _tools/
 
 # practice challenges (not for the repo)
 **/*Practice-Challenges.txt
+
+# private keys from generate-key-pair.sh, never commit
+*.p8
+rsa_key*
