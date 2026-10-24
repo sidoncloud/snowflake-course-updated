@@ -36,3 +36,6 @@ rsa_key*
 
 # your filled-in connector config with the private key, never commit
 **/snowflake-sink-connector.local.json
+
+# Sid-only retake reset
+**/reset-take.sh
