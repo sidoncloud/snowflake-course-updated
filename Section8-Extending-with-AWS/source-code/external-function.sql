@@ -13,7 +13,11 @@
 --
 -- ORDER OF STEPS
 --   AWS console
---     1. Lambda: create function order-tax, Python 3.12, paste lambda_function.py, Deploy.
+--     1. Lambda: create function order-tax, Python 3.12.
+--        Execution role: leave "Create a new role with basic Lambda permissions".
+--        This creates order-tax-role-xxxx, which only allows writing CloudWatch logs.
+--        That is all this function needs. It is NOT the role Snowflake uses (step 5).
+--        Paste lambda_function.py into the code editor and click Deploy.
 --     2. API Gateway: create REST API snowflake-ext-func-api (Regional).
 --        Create resource snowflake, then a POST method on it:
 --        integration type Lambda function, Lambda proxy integration ON, function order-tax.
@@ -84,4 +88,5 @@ ORDER BY order_id;
 -- DROP INTEGRATION IF EXISTS order_tax_api_int;
 -- DROP DATABASE IF EXISTS EXTFUNC_LAB;
 -- Then in the AWS console delete the snowflake-ext-func-api REST API,
--- the order-tax Lambda function and the snowflake-ext-func-api-role IAM role.
+-- the order-tax Lambda function, and both IAM roles: snowflake-ext-func-api-role
+-- and the order-tax-role-xxxx that Lambda created.
