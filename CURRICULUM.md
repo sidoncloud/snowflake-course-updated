@@ -108,10 +108,10 @@ L11 Lab — Batch Inference and Model Versioning
 Section 8 — Extending Snowflake with AWS Services   (4 lectures)
 L1 External Functions: Calling AWS Lambda from Snowflake
 L2 Lab — Lambda, IAM Role, API Gateway, External Function
-   script: external-function.sql    data: inline (plus an AWS Lambda you create in the console)
+   script: external-function.sql, lambda_function.py, ext-func-invoke-policy.json, ext-func-trust-policy.json    data: inline
 L3 Iceberg Tables: Open Lakehouse Storage on S3
 L4 Lab — Iceberg Table on an S3 External Volume
-   script: iceberg-table.sql    data: inline (rows inserted into the Iceberg table)
+   script: iceberg-table.sql, iceberg-s3-policy.json, iceberg-trust-policy.json    data: inline
 
 Section 9 — Real-Time Streaming with Kafka   (4 lectures)
 L1 Streaming Architecture: Kafka to Snowflake
@@ -136,7 +136,6 @@ L3 Data Governance: Masking, Row Access Policies, Tags
 L4 Lab — Apply a Masking Policy and a Row Access Policy
    script: masking-row-access.sql    data: inline
 ~~L5 Orchestration: Native Tasks vs External (Airflow / MWAA)~~   [STRUCK OFF — operational topic, not governance/security. Script + files retained on disk, dropped from the course.]
-
 
 Section 12 — Capstone: End-to-End Pipeline on AWS   (4 lectures)
 L1 Capstone Architecture Walkthrough
