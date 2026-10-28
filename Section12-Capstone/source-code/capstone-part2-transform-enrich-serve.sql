@@ -2,7 +2,7 @@
 -- CAPSTONE, Part 2: Dynamic Tables, Cortex, and Governed Serving
 -- Section 12: End-to-End Pipeline on AWS
 -- Flow:  raw_tickets -> tickets_clean (Dynamic Table) -> tickets_enriched
---        (Dynamic Table + Cortex) -> tickets_service (governed view + masking)
+--        (Dynamic Table + Cortex AI functions) -> tickets_service (governed view + masking)
 -- Run in a Snowsight worksheet as ACCOUNTADMIN, after Part 1.
 -- =============================================================================
 
@@ -31,26 +31,29 @@ WHERE raw:ticket_id IS NOT NULL;
 
 SELECT * FROM tickets_clean ORDER BY ticket_id;
 
--- 2. ENRICHED LAYER, a Dynamic Table that calls Cortex on the ticket text.
---    SENTIMENT scores the tone from -1 to 1, CLASSIFY_TEXT sorts each ticket into
---    a support category, and SUMMARIZE writes a one line gist. We give this table
---    a generous TARGET_LAG so Cortex is not re-invoked more often than needed;
---    tighten it if you want fresher enrichment and are happy to pay for it.
+-- 2. ENRICHED LAYER, a Dynamic Table that calls Cortex AI functions on the ticket text.
+--    AI_AGG answers a prompt over the text it is given. With GROUP BY ALL every
+--    ticket is its own group, so each ticket gets its own answer: one for the
+--    sentiment and one for the category. AI_SUMMARIZE_AGG writes a short summary.
+--    These functions work on trial accounts. We give this table a TARGET_LAG of
+--    1 hour so the AI functions are not run more often than needed.
 CREATE OR REPLACE DYNAMIC TABLE tickets_enriched
   TARGET_LAG = '1 hour'
   WAREHOUSE  = COURSE_WH
 AS
 SELECT
   c.*,
-  SNOWFLAKE.CORTEX.SENTIMENT(c.message)                             AS sentiment_score,
-  SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-    c.message,
-    ['Billing','Shipping','Product Defect','Account Access','General']
-  ):label::string                                                   AS category,
-  SNOWFLAKE.CORTEX.SUMMARIZE(c.message)                             AS summary
-FROM tickets_clean c;
+  AI_AGG(c.message,
+    'Classify the overall sentiment of this support ticket. Answer with exactly one word: Negative, Neutral or Positive.'
+  )                                                                 AS sentiment,
+  AI_AGG(c.message,
+    'Classify this support ticket into exactly one of these categories: Billing, Shipping, Product Defect, Account Access, General. Answer with the category name only.'
+  )                                                                 AS category,
+  AI_SUMMARIZE_AGG(c.message)                                       AS summary
+FROM tickets_clean c
+GROUP BY ALL;
 
-SELECT ticket_id, category, ROUND(sentiment_score, 2) AS sentiment, summary
+SELECT ticket_id, sentiment, category, summary
 FROM tickets_enriched
 ORDER BY ticket_id;
 
@@ -64,7 +67,8 @@ CREATE OR REPLACE MASKING POLICY email_mask AS (val string) RETURNS string ->
 
 -- 4. SERVING LAYER, a governed view.
 --    It shapes the enriched rows for consumers and derives a priority from the
---    sentiment. The masking policy is applied to the email column of this view.
+--    sentiment: Negative is HIGH, Neutral is MEDIUM, Positive is LOW.
+--    The masking policy is applied to the email column of this view.
 CREATE OR REPLACE VIEW tickets_service AS
 SELECT
   ticket_id,
@@ -75,10 +79,10 @@ SELECT
   channel,
   created_at,
   category,
-  sentiment_score,
-  CASE
-    WHEN sentiment_score < -0.3 THEN 'HIGH'
-    WHEN sentiment_score <  0.3 THEN 'MEDIUM'
+  sentiment,
+  CASE sentiment
+    WHEN 'Negative' THEN 'HIGH'
+    WHEN 'Neutral'  THEN 'MEDIUM'
     ELSE 'LOW'
   END AS priority,
   summary
@@ -115,3 +119,7 @@ USE ROLE ACCOUNTADMIN;
 -- DROP MASKING POLICY IF EXISTS email_mask;
 -- DROP TABLE IF EXISTS raw_tickets;
 -- DROP ROLE IF EXISTS capstone_analyst;
+-- DROP STAGE IF EXISTS tickets_stage;
+-- DROP FILE FORMAT IF EXISTS ff_json;
+-- DROP STORAGE INTEGRATION IF EXISTS capstone_s3_int;
+-- Then in AWS: delete the capstone/ folder in the bucket and the snowflake-capstone-role.

@@ -9,7 +9,6 @@ Each lab, demo, and project lists the source-code script and the dataset it uses
 Datasets that need uploading live in that section's datasets/ folder; labs marked
 "inline" build their own data inside the script with INSERT statements.
 
-
 Section 1 — Introduction & Setup   (4 lectures)
 L1 Welcome and What You Will Build
 L2 Where Snowflake Fits in the Modern Data Stack
@@ -140,7 +139,7 @@ L4 Lab — Apply a Masking Policy and a Row Access Policy
 Section 12 — Capstone: End-to-End Pipeline on AWS   (4 lectures)
 L1 Capstone Architecture Walkthrough
 L2 Lab — Build It Part 1: S3 to Raw Layer
-   script: capstone-part1-raw.sql    data: support_tickets.json (source-code/)
+   script: capstone-part1-raw.sql, capstone-s3-policy.json, capstone-trust-policy.json    data: support_tickets.json (source-code/)
 L3 Lab — Build It Part 2: Dynamic Tables, Cortex, Governed Serving
    script: capstone-part2-transform-enrich-serve.sql    data: none (builds on the raw layer from Section 12 L2)
 L4 Wrap and Where to Go Next
