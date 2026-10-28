@@ -1,10 +1,12 @@
 -- =============================================================================
--- LAB - Enrich Pipeline Data with Cortex LLM Functions
+-- LAB - Enrich Pipeline Data with Cortex AI Functions
 -- Section 10: Snowflake Cortex: AI on Your Pipelines
 -- Run in a Snowsight worksheet as ACCOUNTADMIN.
 --
--- Cortex LLM functions run on a Snowflake account with Cortex available in your
--- region. This lab uses AWS us-east-1, where the functions below are supported.
+-- This lab uses AI_AGG, AI_SUMMARIZE_AGG and AI_REDACT, which run on trial
+-- accounts. AI_AGG is an aggregate function: it answers your instruction over
+-- the text in each group. When we GROUP BY the message, every message is its
+-- own group, so every message gets its own answer.
 -- =============================================================================
 
 USE ROLE ACCOUNTADMIN;
@@ -13,7 +15,7 @@ CREATE DATABASE IF NOT EXISTS CORTEX_LAB;
 CREATE SCHEMA   IF NOT EXISTS CORTEX_LAB.CORTEX_AI;
 USE SCHEMA CORTEX_LAB.CORTEX_AI;
 
--- 1. Raw text landing in a pipeline: incoming support messages, some non-English.
+-- STEP 1. Raw support messages landing in a pipeline, one of them in Spanish.
 CREATE OR REPLACE TABLE support_messages (
     message_id   INT,
     customer     STRING,
@@ -30,7 +32,7 @@ INSERT INTO support_messages VALUES
  (103,'Mia Rossi','email','2026-07-01 11:47:00','es',
       'El pedido llego danado y quiero un reembolso lo antes posible.'),
  (104,'Noah Patel','phone','2026-07-01 12:30:00','en',
-      'I was double charged for order 5567, can you reverse one of the payments?'),
+      'I was double charged for order 5567, can you reverse one of the payments? Call me back on 415-555-0142.'),
  (105,'Emma Li','chat','2026-07-01 13:05:00','en',
       'When will my order ship? I placed it on June 28 and still see no tracking.'),
  (106,'Omar Haddad','email','2026-07-01 14:20:00','en',
@@ -38,51 +40,58 @@ INSERT INTO support_messages VALUES
 
 SELECT * FROM support_messages ORDER BY message_id;
 
--- 2. SENTIMENT: a score from -1 (negative) to +1 (positive) for each message.
+-- STEP 2. Sentiment: one label per message.
 SELECT message_id,
-       SNOWFLAKE.CORTEX.SENTIMENT(raw_text) AS sentiment_score
+       raw_text,
+       AI_AGG(raw_text,
+         'Classify the sentiment of this support message. Answer with exactly one word: Negative, Neutral or Positive.'
+       ) AS sentiment
+FROM support_messages
+GROUP BY message_id, raw_text
+ORDER BY message_id;
+
+-- STEP 3. Translate the Spanish message into English.
+SELECT message_id,
+       raw_text,
+       AI_AGG(raw_text,
+         'Translate this text into English. Return only the translation.'
+       ) AS english_text
+FROM support_messages
+WHERE lang <> 'en'
+GROUP BY message_id, raw_text;
+
+-- STEP 4. Classify each message into one of our support categories.
+SELECT message_id,
+       raw_text,
+       AI_AGG(raw_text,
+         'Classify this support message into exactly one of these categories: shipping damage, billing issue, delivery delay, product defect, product question, general feedback. Answer with the category name only.'
+       ) AS category
+FROM support_messages
+GROUP BY message_id, raw_text
+ORDER BY message_id;
+
+-- STEP 5. Extract one fact from the text: the order number.
+SELECT message_id,
+       raw_text,
+       AI_AGG(raw_text,
+         'What order number is mentioned in this message? Answer with the number only, or NONE if there is no order number.'
+       ) AS order_ref
+FROM support_messages
+GROUP BY message_id, raw_text
+ORDER BY message_id;
+
+-- STEP 6. Redact personal data before the text goes downstream.
+SELECT message_id,
+       raw_text,
+       AI_REDACT(raw_text)::STRING AS redacted_text
 FROM support_messages
 ORDER BY message_id;
 
--- 3. TRANSLATE: bring the non-English message into English so the rest works on it.
-SELECT message_id, lang, raw_text,
-       SNOWFLAKE.CORTEX.TRANSLATE(raw_text, 'es', 'en') AS english_text
-FROM support_messages
-WHERE lang = 'es';
+-- STEP 7. Summarize the whole inbox into one short brief.
+SELECT AI_SUMMARIZE_AGG(raw_text) AS inbox_summary
+FROM support_messages;
 
--- 4. CLASSIFY_TEXT: sort each message into one of our support categories.
---    It returns an object; the chosen category is in the :label field.
-SELECT message_id,
-       SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-           raw_text,
-           ['shipping damage','billing issue','delivery delay','product question']
-       ):label::STRING AS category
-FROM support_messages
-ORDER BY message_id;
-
--- 5. SUMMARIZE: a one-line gist for a long message.
-SELECT message_id,
-       SNOWFLAKE.CORTEX.SUMMARIZE(raw_text) AS summary
-FROM support_messages
-WHERE message_id = 101;
-
--- 6. EXTRACT_ANSWER: pull a specific answer out of the text.
---    It returns an array of {answer, score}; take the first answer.
-SELECT message_id,
-       SNOWFLAKE.CORTEX.EXTRACT_ANSWER(raw_text, 'What order number is mentioned?')[0]:answer::STRING AS order_ref
-FROM support_messages
-WHERE message_id = 104;
-
--- 7. COMPLETE: a custom instruction the task functions do not cover.
---    A small model is plenty for routing, and it is the cheaper choice.
-SELECT message_id,
-       TRIM(SNOWFLAKE.CORTEX.COMPLETE('llama3.1-8b',
-            'Route this support message to one team. Reply with exactly one word from: '
-            || 'REFUNDS, BILLING, SHIPPING, PRODUCT_HELP. Message: ' || raw_text)) AS route_to
-FROM support_messages
-ORDER BY message_id;
-
--- 8. Put it all together: one enriched, serving-ready table.
+-- STEP 8. Put it all together: one enriched, serving-ready table.
 CREATE OR REPLACE TABLE support_messages_enriched AS
 SELECT
     m.message_id,
@@ -90,26 +99,23 @@ SELECT
     m.channel,
     m.received_at,
     IFF(m.lang = 'en', m.raw_text,
-        SNOWFLAKE.CORTEX.TRANSLATE(m.raw_text, m.lang, 'en'))          AS english_text,
-    SNOWFLAKE.CORTEX.SENTIMENT(m.raw_text)                             AS sentiment_score,
-    CASE WHEN SNOWFLAKE.CORTEX.SENTIMENT(m.raw_text) >=  0.3 THEN 'POSITIVE'
-         WHEN SNOWFLAKE.CORTEX.SENTIMENT(m.raw_text) <= -0.3 THEN 'NEGATIVE'
-         ELSE 'NEUTRAL' END                                           AS sentiment_label,
-    SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-        m.raw_text,
-        ['shipping damage','billing issue','delivery delay','product question']
-    ):label::STRING                                                   AS category,
-    TRIM(SNOWFLAKE.CORTEX.COMPLETE('llama3.1-8b',
-        'Route this support message to one team. Reply with exactly one word from: '
-        || 'REFUNDS, BILLING, SHIPPING, PRODUCT_HELP. Message: ' || m.raw_text)) AS route_to
-FROM support_messages m;
+        AI_AGG(m.raw_text,
+          'Translate this text into English. Return only the translation.'))      AS english_text,
+    AI_REDACT(m.raw_text)::STRING                                                 AS redacted_text,
+    AI_AGG(m.raw_text,
+      'Classify the sentiment of this support message. Answer with exactly one word: Negative, Neutral or Positive.'
+    )                                                                             AS sentiment,
+    AI_AGG(m.raw_text,
+      'Classify this support message into exactly one of these categories: shipping damage, billing issue, delivery delay, product defect, product question, general feedback. Answer with the category name only.'
+    )                                                                             AS category
+FROM support_messages m
+GROUP BY m.message_id, m.customer, m.channel, m.received_at, m.lang, m.raw_text;
 
-SELECT message_id, customer, sentiment_score, sentiment_label, category, route_to
+SELECT message_id, customer, english_text, redacted_text, sentiment, category
 FROM support_messages_enriched
 ORDER BY message_id;
 
--- 9. Make the enrichment part of the pipeline: a dynamic table keeps it current.
---    New rows landing in support_messages get scored and routed automatically.
+-- STEP 9. Make the enrichment part of the pipeline with a dynamic table.
 CREATE OR REPLACE DYNAMIC TABLE support_messages_ai
     TARGET_LAG = '1 minute'
     WAREHOUSE  = COURSE_WH
@@ -118,16 +124,32 @@ SELECT
     m.message_id,
     m.customer,
     m.channel,
-    SNOWFLAKE.CORTEX.SENTIMENT(m.raw_text)                            AS sentiment_score,
-    SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-        m.raw_text,
-        ['shipping damage','billing issue','delivery delay','product question']
-    ):label::STRING                                                   AS category
-FROM support_messages m;
+    AI_AGG(m.raw_text,
+      'Classify the sentiment of this support message. Answer with exactly one word: Negative, Neutral or Positive.'
+    )                                                                             AS sentiment,
+    AI_AGG(m.raw_text,
+      'Classify this support message into exactly one of these categories: shipping damage, billing issue, delivery delay, product defect, product question, general feedback. Answer with the category name only.'
+    )                                                                             AS category
+FROM support_messages m
+GROUP BY ALL;
 
 SELECT * FROM support_messages_ai ORDER BY message_id;
+
+-- STEP 10. A new message lands. Wait about a minute, then query the dynamic table again.
+INSERT INTO support_messages VALUES
+ (107,'Sara Kim','chat','2026-07-01 15:10:00','en',
+      'The headphones I ordered stopped charging after two days. Can I get a replacement?');
+
+SELECT * FROM support_messages_ai ORDER BY message_id;
+
+SHOW DYNAMIC TABLES LIKE 'SUPPORT_MESSAGES_AI'
+  ->> SELECT "name", "target_lag", "refresh_mode", "refresh_mode_reason", "scheduling_state" FROM $1;
+
+-- STEP 11. Suspend the dynamic table so it stops refreshing every minute.
+ALTER DYNAMIC TABLE support_messages_ai SUSPEND;
 
 -- Cleanup (optional, run this when you are done to remove what the lab created):
 -- DROP DYNAMIC TABLE IF EXISTS support_messages_ai;
 -- DROP TABLE IF EXISTS support_messages_enriched;
 -- DROP TABLE IF EXISTS support_messages;
+-- DROP DATABASE IF EXISTS CORTEX_LAB;
