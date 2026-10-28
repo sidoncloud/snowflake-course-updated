@@ -17,22 +17,37 @@
 --
 -- ORDER OF STEPS
 --   Snowsight
---     1. Run STEP 1 below to check your Snowflake region.
---   AWS console
---     2. S3: create a bucket in that region (or use one you have). Create the
---        folders capstone/tickets/ and upload support_tickets.json into it.
---     3. IAM: create role snowflake-capstone-role, trusted entity = AWS account,
---        This account (a placeholder, replaced in step 6).
---     4. IAM: on that role, Add permissions > Create inline policy > JSON,
---        paste capstone-s3-policy.json, replace <your-bucket>. Copy the role ARN.
+--     1. Run the setup lines and STEP 1 below to check your Snowflake region.
+--        AWS_EU_WEST_1 = eu-west-1, AWS_US_EAST_1 = us-east-1, and so on.
+--   AWS console, S3
+--     2. Switch the console region (top right) to the region from step 1.
+--        S3 > Create bucket > name it (must be unique, e.g. <yourname>-capstone)
+--        > Create bucket. Or use a bucket you already have in that region.
+--        Open the bucket > Create folder "capstone" > open it > Create folder
+--        "tickets" > open it > Upload > Add files > support_tickets.json > Upload.
+--   AWS console, IAM
+--     3. IAM > Roles > Create role. Trusted entity type: AWS account, keep
+--        "This account" (a placeholder, replaced in step 6). Next > Next (skip
+--        permissions) > Role name: snowflake-capstone-role > Create role.
+--     4. Open snowflake-capstone-role > Add permissions > Create inline policy
+--        > JSON. Delete what is there, paste capstone-s3-policy.json and replace
+--        <your-bucket> (3 places). Next > Policy name: snowflake-capstone-access
+--        > Create policy. On the role summary, copy the role ARN.
 --   Snowsight
---     5. Run STEP 5 below (storage integration), then DESC INTEGRATION and copy
+--     5. Run STEP 5 below: paste the role ARN and your bucket, create the
+--        integration, then run DESC INTEGRATION. Copy the property_value of
 --        STORAGE_AWS_IAM_USER_ARN and STORAGE_AWS_EXTERNAL_ID.
---   AWS console
---     6. IAM: on the role, Trust relationships > Edit trust policy,
---        paste capstone-trust-policy.json with the two values from step 5.
+--   AWS console, IAM
+--     6. Open snowflake-capstone-role > Trust relationships > Edit trust policy.
+--        Delete everything, paste capstone-trust-policy.json and replace
+--        <STORAGE_AWS_IAM_USER_ARN> and <STORAGE_AWS_EXTERNAL_ID> with the two
+--        values from step 5 > Update policy.
 --   Snowsight
---     7. Run STEP 7 to STEP 11 below (file format, stage, list, table, load, check).
+--     7. Run STEP 7 to STEP 11 below (file format, stage and LIST, table, load,
+--        check). If LIST says Access Denied, check the two values in the trust
+--        policy (step 6) and the bucket name in the inline policy (step 4).
+--        Do not change STEP 5 to CREATE OR REPLACE: that gives the integration
+--        a new external ID and you would have to redo step 6.
 -- =============================================================================
 
 USE ROLE ACCOUNTADMIN;
