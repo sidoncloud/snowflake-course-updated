@@ -121,8 +121,8 @@ L4 Lab — Stream Events End to End
    script: docker-compose.yml, stream-events.sh, verify.sql    data: inline (events produced by stream-events.sh)
 
 Section 10 — Snowflake Cortex: AI on Your Pipelines   (3 lectures)
-L1 Cortex Overview: LLM Functions, Cortex Search, Cortex Analyst
-L2 Lab — Enrich Pipeline Data with Cortex LLM Functions
+L1 Cortex Overview: AI Functions, Cortex Search, Cortex Analyst
+L2 Lab — Enrich Pipeline Data with Cortex AI Functions
    script: enrich-with-cortex.sql    data: inline (support_messages table built in the script)
 L3 When to Reach for Cortex Search and Analyst
 
