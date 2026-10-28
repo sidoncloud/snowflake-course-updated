@@ -122,6 +122,7 @@ L4 Lab — Stream Events End to End
 
 Section 10 — Snowflake Cortex: AI on Your Pipelines   (3 lectures)
 L1 Cortex Overview: AI Functions, Cortex Search, Cortex Analyst
+
 L2 Lab — Enrich Pipeline Data with Cortex AI Functions
    script: enrich-with-cortex.sql    data: inline (support_messages table built in the script)
 L3 When to Reach for Cortex Search and Analyst

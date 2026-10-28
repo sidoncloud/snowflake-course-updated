@@ -1,6 +1,6 @@
 -- =============================================================================
 -- LAB - Enrich Pipeline Data with Cortex AI Functions
--- Section 10: Snowflake Cortex: AI on Your Pipelines
+-- Section 10: Snowflake Cortex, AI on Your Pipelines
 -- Run in a Snowsight worksheet as ACCOUNTADMIN.
 --
 -- This lab uses AI_AGG, AI_SUMMARIZE_AGG and AI_REDACT, which run on trial
@@ -116,6 +116,8 @@ FROM support_messages_enriched
 ORDER BY message_id;
 
 -- STEP 9. Make the enrichment part of the pipeline with a dynamic table.
+--   AI_AGG is non-deterministic, so Snowflake picks FULL refresh mode: when new rows
+--   arrive, the AI functions run on every row again. Suspend it when you are done.
 CREATE OR REPLACE DYNAMIC TABLE support_messages_ai
     TARGET_LAG = '1 minute'
     WAREHOUSE  = COURSE_WH
