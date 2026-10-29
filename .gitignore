@@ -41,4 +41,4 @@ rsa_key*
 **/reset-take.sh
 
 # assignment decks are shared with students
-!Assignments/**/*.pptx
+!**/Assignments/**/*.pptx
