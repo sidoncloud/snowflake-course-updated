@@ -1,0 +1,4 @@
+# Secrets created during the lab. Never commit these.
+rsa_key.p8
+rsa_key.pub
+voltway-sink-connector.json

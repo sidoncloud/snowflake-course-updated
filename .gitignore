@@ -39,3 +39,6 @@ rsa_key*
 
 # Sid-only retake reset
 **/reset-take.sh
+
+# assignment decks are shared with students
+!Assignments/**/*.pptx

@@ -1,0 +1,6 @@
+{"order_id": 6001, "customer": {"name": "Priya Nair", "country": "IN"}, "amount": 54.2}
+{"order_id": 6002, "customer": {"name": "Jonas Weber", "country": "DE"}, "amount": 132.0}
+{"order_id": 6003, "customer": {"name": "Camille Dubois", "country": "FR"}, "amount": 88.75}
+{"order_id": 6004, "customer": {"name": "Diego Alvarez", "country": "MX"}, "amount": 210.4}
+{"order_id": 6005, "customer": {"name": "Grace Kim", "country": "KR"}, "amount": 61.1}
+{"order_id": 6006, "customer": {"name": "Lucas Oliveira", "country": "BR"}, "amount": 175.6}

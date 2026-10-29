@@ -1,0 +1,12 @@
+{"event_id":"EVT-000327","event_type":"meter_update","session_id":"SES-1067","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T08:49:00Z","meter_kwh":34.9,"power_kw":70.2}
+{"event_id":"EVT-000328","event_type":"meter_update","session_id":"SES-1067","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T08:59:00Z","meter_kwh":46.53,"power_kw":70.0}
+{"event_id":"EVT-000329","event_type":"meter_update","session_id":"SES-1067","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T09:09:00Z","meter_kwh":58.17,"power_kw":72.2}
+{"event_id":"EVT-000330","event_type":"session_stopped","session_id":"SES-1067","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T09:10:00Z","meter_kwh":59.33,"power_kw":0.0,"stop_reason":"user"}
+{"event_id":"EVT-000331","event_type":"session_started","session_id":"SES-1068","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T09:33:00Z","meter_kwh":0.0,"power_kw":0.0,"vehicle":{"make":"Volkswagen","connector":"CCS2","battery_pct":19},"payment":{"method":"contactless"}}
+{"event_id":"EVT-000332","event_type":"meter_update","session_id":"SES-1068","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T09:43:00Z","meter_kwh":13.58,"power_kw":70.8}
+{"event_id":"EVT-000333","event_type":"meter_update","session_id":"SES-1068","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T09:53:00Z","meter_kwh":27.17,"power_kw":69.3}
+{"event_id":"EVT-000334","event_type":"meter_update","session_id":"SES-1068","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T10:03:00Z","meter_kwh":40.75,"power_kw":78.5}
+{"event_id":"EVT-000335","event_type":"session_stopped","session_id":"SES-1068","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T10:07:00Z","meter_kwh":46.18,"power_kw":0.0,"stop_reason":"battery_full"}
+{"event_id":"EVT-000336","event_type":"session_started","session_id":"SES-1069","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T10:19:00Z","meter_kwh":0.0,"power_kw":0.0,"vehicle":{"make":"Tesla","connector":"NACS","battery_pct":37},"payment":{"method":"app"}}
+{"event_id":"EVT-000337","event_type":"meter_update","session_id":"SES-1069","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T10:29:00Z","meter_kwh":8.77,"power_kw":53.7}
+{"event_id":"EVT-000338","event_type":"meter_update","session_id":"SES-1069","charger_id":"CHG-11","station_id":"STN-05","event_ts":"2026-10-27T10:39:00Z","meter_kwh":17.53,"power_kw":56.9}
